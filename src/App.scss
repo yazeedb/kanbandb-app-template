@@ -1,0 +1,27 @@
+$bg: #1c1c1c;
+$color-primary: #3cb8b0;
+
+body {
+  background-color: $bg;
+  color: white;
+}
+
+main {
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+.columns {
+  display: flex;
+  padding: 20px 30px;
+}
+
+.column {
+  flex: 1;
+  text-align: center;
+  margin: 0 30px;
+
+  .column-header {
+    color: $color-primary;
+  }
+}

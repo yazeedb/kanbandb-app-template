@@ -16,4 +16,16 @@ export interface Column {
   cards: Card[];
 }
 
+const columns: Column[] = [
+  { id: 'TODO', name: 'To-do', cards: [] },
+  { id: 'DOING', name: 'In Progress', cards: [] },
+  { id: 'DONE', name: 'Done', cards: [] }
+];
+
+export const createColumns = (cards: Card[]): Column[] =>
+  columns.map((col) => ({
+    ...col,
+    cards: cards.filter((card) => card.status === col.id)
+  }));
+
 type UnixTimestamp = number;

@@ -1,6 +1,6 @@
-import { Machine, assign } from 'xstate';
+import { Machine, assign, DoneInvokeEvent } from 'xstate';
 import KanbanDB from 'kanbandb/dist/KanbanDB';
-import { Card, CardId, Column, Status } from './model';
+import { Card, CardId, Column, createColumns, Status } from './model';
 
 interface MachineContext {
   columns: Column[];
@@ -21,10 +21,10 @@ export const boardMachine = Machine<MachineContext, any, MachineEvent>(
     states: {
       fetching: {
         invoke: {
-          src: 'fetchingCards',
+          src: 'fetchCards',
           onDone: {
             target: 'viewingCards',
-            actions: 'setCards'
+            actions: 'setColumns'
           },
           onError: {
             target: 'fetchFailed',
@@ -33,14 +33,14 @@ export const boardMachine = Machine<MachineContext, any, MachineEvent>(
         }
       },
       fetchFailed: {
-        on: { RETRY_FETCH: 'fetchingCards' }
+        on: { RETRY_FETCH: 'fetching' }
       },
       viewingCards: {}
     }
   },
   {
     services: {
-      fetchingCards: (_) =>
+      fetchCards: (_) =>
         instance
           .then((db) => db.getCards().then((cards: Card[]) => cards))
           .catch((error: Error) => {
@@ -51,6 +51,15 @@ export const boardMachine = Machine<MachineContext, any, MachineEvent>(
 
             throw new Error(error.message);
           })
+    },
+    actions: {
+      setColumns: assign({
+        columns: (context, event) => {
+          const e = event as DoneInvokeEvent<Card[]>;
+
+          return createColumns(e.data);
+        }
+      })
     }
   }
 );

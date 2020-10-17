@@ -8,6 +8,7 @@ export interface Card {
 }
 
 export type CardId = 'string';
+export type Status = 'TODO' | 'DOING' | 'DONE';
 
 export interface Column {
   id: Status;
@@ -15,5 +16,4 @@ export interface Column {
   cards: Card[];
 }
 
-type Status = 'TODO' | 'DOING' | 'DONE';
 type UnixTimestamp = number;

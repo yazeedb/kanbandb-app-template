@@ -42,7 +42,7 @@ const App = () => {
                   <Panel
                     header={
                       <div className="card-header">
-                        <span className="card-name">{card.name}</span>
+                        <h5 className="card-name">{card.name}</h5>
 
                         <div>
                           <IconButton

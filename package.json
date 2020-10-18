@@ -2,6 +2,7 @@
   "name": "kanbandb-app",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://yazeedb.com/kanban-app",
   "dependencies": {
     "@types/jest": "^26.0.14",
     "@types/node": "^14.11.10",

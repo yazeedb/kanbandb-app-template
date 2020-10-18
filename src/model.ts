@@ -17,7 +17,7 @@ export interface Column {
 }
 
 const columns: Column[] = [
-  { id: 'TODO', name: 'To-do', cards: [] },
+  { id: 'TODO', name: 'To Do', cards: [] },
   { id: 'DOING', name: 'In Progress', cards: [] },
   { id: 'DONE', name: 'Done', cards: [] }
 ];

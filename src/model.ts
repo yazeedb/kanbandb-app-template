@@ -7,7 +7,7 @@ export interface Card {
   lastUpdated: UnixTimestamp;
 }
 
-export type CardId = 'string';
+export type CardId = string;
 export type Status = 'TODO' | 'DOING' | 'DONE';
 
 export interface Column {
@@ -27,5 +27,14 @@ export const createColumns = (cards: Card[]): Column[] =>
     ...col,
     cards: cards.filter((card) => card.status === col.id)
   }));
+
+export const emptyCard: Card = {
+  id: '',
+  name: '',
+  description: '',
+  created: -1,
+  lastUpdated: -1,
+  status: 'TODO'
+};
 
 type UnixTimestamp = number;

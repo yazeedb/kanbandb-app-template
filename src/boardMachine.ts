@@ -1,13 +1,27 @@
 import { Machine, assign, DoneInvokeEvent } from 'xstate';
 import KanbanDB from 'kanbandb/dist/KanbanDB';
-import { Card, CardId, Column, createColumns, Status } from './model';
+import {
+  Card,
+  CardId,
+  Column,
+  createColumns,
+  emptyCard,
+  Status
+} from './model';
 
 interface MachineContext {
   columns: Column[];
   errorMessage: string;
+  updatingCard: Card;
 }
 
-type MachineEvent = RetryFetch | AddCard | DeleteCard;
+type MachineEvent =
+  | RetryFetch
+  | AddCard
+  | DeleteCard
+  | UpdateCard
+  | Exit
+  | SubmitUpdates;
 
 const instance = KanbanDB.connect('');
 
@@ -16,7 +30,8 @@ export const boardMachine = Machine<MachineContext, any, MachineEvent>(
     initial: 'fetching',
     context: {
       columns: [],
-      errorMessage: ''
+      errorMessage: '',
+      updatingCard: emptyCard
     },
     states: {
       fetching: {
@@ -42,7 +57,11 @@ export const boardMachine = Machine<MachineContext, any, MachineEvent>(
             target: 'viewingCards.adding',
             cond: 'isValidName'
           },
-          DELETE_CARD: 'viewingCards.deleting'
+          DELETE_CARD: 'viewingCards.deleting',
+          UPDATE_CARD: {
+            target: 'viewingCards.updating',
+            actions: 'setUpdatingCard'
+          }
         },
         states: {
           idle: {},
@@ -56,6 +75,22 @@ export const boardMachine = Machine<MachineContext, any, MachineEvent>(
           deleting: {
             invoke: {
               src: 'deleteCard',
+              onDone: 'refreshBoard',
+              onError: 'refreshBoard'
+            }
+          },
+          updating: {
+            on: {
+              EXIT: 'idle',
+              SUBMIT_UPDATES: {
+                target: 'submittingUpdates',
+                cond: 'isValidUpdate'
+              }
+            }
+          },
+          submittingUpdates: {
+            invoke: {
+              src: 'updateCard',
               onDone: 'refreshBoard',
               onError: 'refreshBoard'
             }
@@ -109,6 +144,14 @@ export const boardMachine = Machine<MachineContext, any, MachineEvent>(
 
           return db.deleteCardById(id);
         });
+      },
+
+      updateCard: (context, event) => {
+        return instance.then((db: any) => {
+          const { card } = event as SubmitUpdates;
+
+          return db.updateCardById(card.id, card);
+        });
       }
     },
 
@@ -119,6 +162,14 @@ export const boardMachine = Machine<MachineContext, any, MachineEvent>(
 
           return createColumns(e.data);
         }
+      }),
+
+      setUpdatingCard: assign({
+        updatingCard: (context, event) => {
+          const e = event as UpdateCard;
+
+          return e.card;
+        }
       })
     },
 
@@ -127,6 +178,12 @@ export const boardMachine = Machine<MachineContext, any, MachineEvent>(
         const e = event as AddCard;
 
         return e.name.trim().length > 0;
+      },
+
+      isValidUpdate: (context, event) => {
+        const { card } = event as SubmitUpdates;
+
+        return card.name.trim().length > 0;
       }
     }
   }
@@ -146,4 +203,18 @@ type AddCard = {
 type DeleteCard = {
   type: 'DELETE_CARD';
   id: CardId;
+};
+
+type UpdateCard = {
+  type: 'UPDATE_CARD';
+  card: Card;
+};
+
+type Exit = {
+  type: 'EXIT';
+};
+
+type SubmitUpdates = {
+  type: 'SUBMIT_UPDATES';
+  card: Card;
 };

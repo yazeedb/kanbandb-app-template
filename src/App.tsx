@@ -1,9 +1,18 @@
 import React, { useState } from 'react';
 import { useMachine } from '@xstate/react';
-import { FaEdit, FaTrash } from 'react-icons/fa';
+
 import { boardMachine } from './boardMachine';
 import './App.scss';
-import { Dropdown, Form, FormControl, Icon, IconButton, Panel } from 'rsuite';
+import {
+  Dropdown,
+  Form,
+  FormControl,
+  Icon,
+  IconButton,
+  Modal,
+  Panel
+} from 'rsuite';
+import { UpdateCard } from './UpdateCard';
 
 const App = () => {
   const [{ matches, context }, send] = useMachine(boardMachine, {
@@ -39,6 +48,9 @@ const App = () => {
                             icon={<Icon icon="edit2" />}
                             className="edit-card"
                             loading={loading}
+                            onClick={() => {
+                              send({ type: 'UPDATE_CARD', card });
+                            }}
                           />
 
                           <IconButton
@@ -71,34 +83,6 @@ const App = () => {
                     <p>{card.description}</p>
                   </Panel>
                 </Panel>
-                // <Panel
-                //   header={card.name}
-                //   shaded
-                //   bordered
-                //   bodyFill
-                //   key={card.id}
-                //   className="card"
-                // >
-                //   <p className="card-description">{card.description}</p>
-
-                //   {/* <div className="card" key={card.id}>
-                //   <header className="card-header">
-                //     <span className="name">{card.name}</span>
-
-                //     <button className="edit-card">
-                //       <FaEdit />
-                //     </button>
-
-                //     <button className="delete-card">
-                //       <FaTrash />
-                //     </button>
-                //   </header>
-
-                //   <section className="card-description">
-                //     {card.description}
-                //   </section>
-                // </div> */}
-                // </Panel>
               ))}
             </section>
           </div>
@@ -116,8 +100,7 @@ const App = () => {
             send({
               type: 'ADD_CARD',
               name: inputValue,
-              // description: '',
-              description: 'This is a sample description man!',
+              description: '',
               status: 'TODO'
             });
 
@@ -162,6 +145,26 @@ const App = () => {
           </Dropdown>
         </Form>
       </footer>
+
+      <Modal
+        show={matches('viewingCards.updating') && !!context.updatingCard}
+        onHide={() => send('EXIT')}
+      >
+        <UpdateCard
+          card={context.updatingCard}
+          onClose={() => send('EXIT')}
+          onSubmit={(name, description) =>
+            send({
+              type: 'SUBMIT_UPDATES',
+              card: {
+                ...context.updatingCard,
+                name,
+                description
+              }
+            })
+          }
+        />
+      </Modal>
     </main>
   );
 };

@@ -87,6 +87,7 @@ const App = () => {
             placement="topStart"
             appearance="primary"
             size="lg"
+            className="add-card"
           >
             {context.columns.map((c, index) => (
               <Dropdown.Item appearance="primary" key={index} type="submit">

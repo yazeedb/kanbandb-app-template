@@ -65,13 +65,17 @@ export const boardMachine = Machine<MachineContext, any, MachineEvent>(
             actions: 'setPendingCard'
           }
         },
+        onDone: 'fetching',
         states: {
           idle: {},
           adding: {
             invoke: {
               src: 'addCard',
-              onDone: 'refreshBoard',
-              onError: 'refreshBoard'
+              onDone: 'changeSuccess',
+              onError: {
+                target: 'idle',
+                actions: 'flashError'
+              }
             }
           },
           confirmingDelete: {
@@ -83,8 +87,11 @@ export const boardMachine = Machine<MachineContext, any, MachineEvent>(
           deleting: {
             invoke: {
               src: 'deleteCard',
-              onDone: 'refreshBoard',
-              onError: 'refreshBoard'
+              onDone: 'changeSuccess',
+              onError: {
+                target: 'idle',
+                actions: 'flashError'
+              }
             }
           },
           draftingUpdates: {
@@ -99,24 +106,14 @@ export const boardMachine = Machine<MachineContext, any, MachineEvent>(
           submittingUpdates: {
             invoke: {
               src: 'updateCard',
-              onDone: 'refreshBoard',
-              onError: 'refreshBoard'
-            }
-          },
-          refreshBoard: {
-            invoke: {
-              src: 'fetchCards',
-              onDone: {
-                target: 'idle',
-                actions: 'setColumns'
-              },
+              onDone: 'changeSuccess',
               onError: {
-                target: 'refreshFailed',
-                actions: 'setErrorMessage'
+                target: 'idle',
+                actions: 'flashError'
               }
             }
           },
-          refreshFailed: {}
+          changeSuccess: { type: 'final' }
         }
       }
     }

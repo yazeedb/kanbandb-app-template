@@ -3,7 +3,7 @@ import { useMachine } from '@xstate/react';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import { boardMachine } from './boardMachine';
 import './App.scss';
-import { Dropdown, Form, FormControl } from 'rsuite';
+import { Dropdown, Form, FormControl, Icon, IconButton, Panel } from 'rsuite';
 
 const App = () => {
   const [{ matches, context }, send] = useMachine(boardMachine, {
@@ -24,23 +24,53 @@ const App = () => {
 
             <section className="column-body">
               {column.cards.map((card) => (
-                <div className="card" key={card.id}>
-                  <header className="card-header">
-                    <span className="name">{card.name}</span>
+                <Panel shaded bordered bodyFill key={card.id} className="card">
+                  <Panel
+                    header={
+                      <div className="card-header">
+                        <span className="card-name">{card.name}</span>
 
-                    <button className="edit-card">
-                      <FaEdit />
-                    </button>
+                        <div>
+                          <IconButton
+                            icon={<Icon icon="edit2" />}
+                            className="edit-card"
+                          />
+                          <IconButton icon={<Icon icon="trash2" />} />
+                        </div>
+                      </div>
+                    }
+                  >
+                    <p>{card.description}</p>
+                  </Panel>
+                </Panel>
+                // <Panel
+                //   header={card.name}
+                //   shaded
+                //   bordered
+                //   bodyFill
+                //   key={card.id}
+                //   className="card"
+                // >
+                //   <p className="card-description">{card.description}</p>
 
-                    <button className="delete-card">
-                      <FaTrash />
-                    </button>
-                  </header>
+                //   {/* <div className="card" key={card.id}>
+                //   <header className="card-header">
+                //     <span className="name">{card.name}</span>
 
-                  <section className="card-description">
-                    {card.description}
-                  </section>
-                </div>
+                //     <button className="edit-card">
+                //       <FaEdit />
+                //     </button>
+
+                //     <button className="delete-card">
+                //       <FaTrash />
+                //     </button>
+                //   </header>
+
+                //   <section className="card-description">
+                //     {card.description}
+                //   </section>
+                // </div> */}
+                // </Panel>
               ))}
             </section>
           </div>
@@ -58,7 +88,8 @@ const App = () => {
             send({
               type: 'ADD_CARD',
               name: inputValue,
-              description: '',
+              // description: '',
+              description: 'This is a sample description man!',
               status: 'TODO'
             });
 

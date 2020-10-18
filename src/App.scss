@@ -1,5 +1,6 @@
 $bg: #1c1c1c;
 $color-primary: #3cb8b0;
+$border-color: #ababab;
 
 body {
   background-color: $bg;
@@ -23,5 +24,6 @@ main {
 
   .column-header {
     color: $color-primary;
+    border-bottom: 1.5px solid $border-color;
   }
 }

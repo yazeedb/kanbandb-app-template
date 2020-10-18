@@ -15,7 +15,7 @@ const App = () => {
         {context.columns.map((column) => (
           <div className="column">
             <header className="column-header">
-              <h2>{column.name}</h2>
+              <h3>{column.name}</h3>
             </header>
 
             <section className="column-body">

@@ -1,13 +1,6 @@
 import { Machine, assign, DoneInvokeEvent } from 'xstate';
 import KanbanDB from 'kanbandb/dist/KanbanDB';
-import {
-  Card,
-  CardId,
-  Column,
-  createColumns,
-  emptyCard,
-  Status
-} from './model';
+import { Card, Column, createColumns, emptyCard, Status } from './model';
 
 interface MachineContext {
   columns: Column[];

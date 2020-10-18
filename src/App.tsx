@@ -71,6 +71,10 @@ const App = () => {
                     className="column-body"
                     ref={dropProvided.innerRef}
                     {...dropProvided.droppableProps}
+                    // TODO: Make a custom component?
+                    // React doesn't like HTML elements
+                    // receiving props like this.
+
                     // @ts-ignore
                     isDraggingOver={dropSnapshot.isDraggingOver}
                   >

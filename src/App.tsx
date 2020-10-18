@@ -204,7 +204,7 @@ const App = () => {
       </footer>
 
       <Modal
-        show={matches('viewingCards.updating')}
+        show={matches('viewingCards.draftingUpdates')}
         onHide={() => send('EXIT')}
       >
         <UpdateCard

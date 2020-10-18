@@ -1,20 +1,9 @@
 import React, { useState } from 'react';
 import { useMachine } from '@xstate/react';
-import { FaEdit, FaPlus, FaTrash } from 'react-icons/fa';
+import { FaEdit, FaTrash } from 'react-icons/fa';
 import { boardMachine } from './boardMachine';
 import './App.scss';
-import {
-  Button,
-  ButtonToolbar,
-  ControlLabel,
-  Dropdown,
-  Form,
-  FormControl,
-  FormGroup,
-  HelpBlock,
-  Icon,
-  IconButton
-} from 'rsuite';
+import { Dropdown, Form, FormControl } from 'rsuite';
 
 const App = () => {
   const [{ matches, context }, send] = useMachine(boardMachine, {
@@ -22,6 +11,7 @@ const App = () => {
   });
 
   const [inputValue, setInputValue] = useState('');
+  const resetInputValue = () => setInputValue('');
 
   return (
     <main>
@@ -61,7 +51,18 @@ const App = () => {
         <Form
           fluid
           onSubmit={() => {
-            setInputValue('');
+            if (inputValue.trim().length === 0) {
+              return;
+            }
+
+            send({
+              type: 'ADD_CARD',
+              name: inputValue,
+              description: '',
+              status: 'TODO'
+            });
+
+            resetInputValue();
           }}
         >
           <FormControl
@@ -72,25 +73,30 @@ const App = () => {
             onChange={setInputValue}
           />
 
-          {/* <IconButton
-            icon={<Icon icon="plus" />}
-            size="lg"
-            appearance="primary"
-            type="submit"
-            className="add-card"
-          >
-            ADD
-          </IconButton> */}
-
           <Dropdown
             title="Add card"
             placement="topStart"
             appearance="primary"
             size="lg"
             className="add-card"
+            disabled={matches('viewingCards.adding')}
           >
             {context.columns.map((c, index) => (
-              <Dropdown.Item appearance="primary" key={index} type="submit">
+              <Dropdown.Item
+                appearance="primary"
+                key={index}
+                type="submit"
+                onClick={() => {
+                  send({
+                    type: 'ADD_CARD',
+                    name: inputValue,
+                    description: '',
+                    status: c.id
+                  });
+
+                  resetInputValue();
+                }}
+              >
                 {c.name}
               </Dropdown.Item>
             ))}

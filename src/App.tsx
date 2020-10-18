@@ -147,17 +147,17 @@ const App = () => {
       </footer>
 
       <Modal
-        show={matches('viewingCards.updating') && !!context.updatingCard}
+        show={matches('viewingCards.updating') && !!context.pendingCard}
         onHide={() => send('EXIT')}
       >
         <UpdateCard
-          card={context.updatingCard}
+          card={context.pendingCard}
           onClose={() => send('EXIT')}
           onSubmit={(name, description) =>
             send({
               type: 'SUBMIT_UPDATES',
               card: {
-                ...context.updatingCard,
+                ...context.pendingCard,
                 name,
                 description
               }

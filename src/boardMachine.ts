@@ -12,7 +12,7 @@ import {
 interface MachineContext {
   columns: Column[];
   errorMessage: string;
-  updatingCard: Card;
+  pendingCard: Card;
 }
 
 type MachineEvent =
@@ -31,7 +31,7 @@ export const boardMachine = Machine<MachineContext, any, MachineEvent>(
     context: {
       columns: [],
       errorMessage: '',
-      updatingCard: emptyCard
+      pendingCard: emptyCard
     },
     states: {
       fetching: {
@@ -60,7 +60,7 @@ export const boardMachine = Machine<MachineContext, any, MachineEvent>(
           DELETE_CARD: 'viewingCards.deleting',
           UPDATE_CARD: {
             target: 'viewingCards.updating',
-            actions: 'setUpdatingCard'
+            actions: 'setPendingCard'
           }
         },
         states: {
@@ -164,8 +164,8 @@ export const boardMachine = Machine<MachineContext, any, MachineEvent>(
         }
       }),
 
-      setUpdatingCard: assign({
-        updatingCard: (context, event) => {
+      setPendingCard: assign({
+        pendingCard: (context, event) => {
           const e = event as UpdateCard;
 
           return e.card;

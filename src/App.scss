@@ -13,11 +13,21 @@ main {
 
 .column {
   flex: 1;
-  margin: 0 30px;
 
   .column-header {
     margin-bottom: 15px;
     text-align: center;
+  }
+
+  .column-body {
+    border-right: 1px solid rgba(#fff, 0.5);
+    height: 80%;
+    overflow-y: auto;
+    padding: 0 20px;
+  }
+
+  &:last-child .column-body {
+    border-right: none;
   }
 }
 

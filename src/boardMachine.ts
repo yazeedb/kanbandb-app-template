@@ -20,6 +20,7 @@ type MachineEvent =
   | AddCard
   | DeleteCard
   | UpdateCard
+  | MoveCard
   | Exit
   | SubmitUpdates
   | ConfirmDelete;
@@ -64,6 +65,10 @@ export const boardMachine = Machine<MachineContext, any, MachineEvent>(
           },
           UPDATE_CARD: {
             target: 'viewingCards.updating',
+            actions: 'setPendingCard'
+          },
+          MOVE_CARD: {
+            target: 'viewingCards.submittingUpdates',
             actions: 'setPendingCard'
           }
         },
@@ -212,6 +217,11 @@ type DeleteCard = {
 
 type UpdateCard = {
   type: 'UPDATE_CARD';
+  card: Card;
+};
+
+type MoveCard = {
+  type: 'MOVE_CARD';
   card: Card;
 };
 

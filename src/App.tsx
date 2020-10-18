@@ -14,6 +14,8 @@ import {
 } from 'rsuite';
 import { UpdateCard } from './UpdateCard';
 import { ConfirmDelete } from './ConfirmDelete';
+import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
+import { Status } from './model';
 
 const App = () => {
   const [{ matches, context }, send] = useMachine(boardMachine, {
@@ -29,48 +31,117 @@ const App = () => {
 
   return (
     <main>
-      <section className="columns">
-        {context.columns.map((column) => (
-          <div className="column" key={column.id}>
-            <header className="column-header">
-              <h3>{column.name}</h3>
-            </header>
+      <DragDropContext
+        onDragEnd={({ destination, source, draggableId }) => {
+          if (!destination) {
+            return;
+          }
 
-            <section className="column-body">
-              {column.cards.map((card) => (
-                <Panel shaded bordered bodyFill key={card.id} className="card">
-                  <Panel
-                    header={
-                      <div className="card-header">
-                        <h5 className="card-name">{card.name}</h5>
+          if (
+            destination.droppableId === source.droppableId &&
+            destination.index === source.index
+          ) {
+            return;
+          }
 
-                        <div>
-                          <IconButton
-                            icon={<Icon icon="edit2" />}
-                            className="edit-card"
-                            loading={loading}
-                            onClick={() => {
-                              send({ type: 'UPDATE_CARD', card });
-                            }}
-                          />
+          const startColumn = context.columns.find(
+            (c) => c.id === source.droppableId
+          );
 
-                          <IconButton
-                            icon={<Icon icon="trash2" />}
-                            loading={loading}
-                            onClick={() => send({ type: 'DELETE_CARD', card })}
-                          />
-                        </div>
-                      </div>
-                    }
+          const finishColumn = context.columns.find(
+            (c) => c.id === destination.droppableId
+          );
+
+          if (!startColumn || !finishColumn) {
+            return;
+          }
+
+          const card = startColumn.cards.find((c) => c.id === draggableId);
+
+          if (!card) {
+            return;
+          }
+
+          send({
+            type: 'MOVE_CARD',
+            card: {
+              ...card,
+              status: destination.droppableId as Status
+            }
+          });
+        }}
+      >
+        <section className="columns">
+          {context.columns.map((column) => (
+            <div className="column" key={column.id}>
+              <header className="column-header">
+                <h3>{column.name}</h3>
+              </header>
+
+              <Droppable droppableId={column.id} key={column.id}>
+                {(dropProvided, dropSnapshot) => (
+                  <section
+                    className="column-body"
+                    ref={dropProvided.innerRef}
+                    {...dropProvided.droppableProps}
+                    // @ts-ignore
+                    isDraggingOver={dropSnapshot.isDraggingOver}
                   >
-                    <p>{card.description}</p>
-                  </Panel>
-                </Panel>
-              ))}
-            </section>
-          </div>
-        ))}
-      </section>
+                    {column.cards.map((card, index) => (
+                      <Draggable
+                        draggableId={card.id}
+                        index={index}
+                        key={card.id}
+                      >
+                        {(dragProvided) => (
+                          <div
+                            {...dragProvided.draggableProps}
+                            {...dragProvided.dragHandleProps}
+                            ref={dragProvided.innerRef}
+                          >
+                            <Panel shaded bordered bodyFill className="card">
+                              <Panel
+                                header={
+                                  <div className="card-header">
+                                    <h5 className="card-name">{card.name}</h5>
+
+                                    <div>
+                                      <IconButton
+                                        icon={<Icon icon="edit2" />}
+                                        className="edit-card"
+                                        loading={loading}
+                                        onClick={() => {
+                                          send({ type: 'UPDATE_CARD', card });
+                                        }}
+                                      />
+
+                                      <IconButton
+                                        icon={<Icon icon="trash2" />}
+                                        loading={loading}
+                                        onClick={() =>
+                                          send({ type: 'DELETE_CARD', card })
+                                        }
+                                      />
+                                    </div>
+                                  </div>
+                                }
+                              >
+                                <p>{card.description}</p>
+                              </Panel>
+                            </Panel>
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+
+                    {dropProvided.placeholder}
+                  </section>
+                )}
+              </Droppable>
+            </div>
+          ))}
+        </section>
+      </DragDropContext>
 
       <footer>
         <Form

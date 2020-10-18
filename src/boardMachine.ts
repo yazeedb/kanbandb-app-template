@@ -64,7 +64,7 @@ export const boardMachine = Machine<MachineContext, any, MachineEvent>(
             actions: 'setPendingCard'
           },
           UPDATE_CARD: {
-            target: 'viewingCards.updating',
+            target: 'viewingCards.draftingUpdates',
             actions: 'setPendingCard'
           },
           MOVE_CARD: {
@@ -94,7 +94,7 @@ export const boardMachine = Machine<MachineContext, any, MachineEvent>(
               onError: 'refreshBoard'
             }
           },
-          updating: {
+          draftingUpdates: {
             on: {
               EXIT: 'idle',
               SUBMIT_UPDATES: {

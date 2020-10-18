@@ -7,7 +7,7 @@ interface MachineContext {
   errorMessage: string;
 }
 
-type MachineEvent = RetryFetch | AddCard;
+type MachineEvent = RetryFetch | AddCard | DeleteCard;
 
 const instance = KanbanDB.connect('');
 
@@ -41,13 +41,21 @@ export const boardMachine = Machine<MachineContext, any, MachineEvent>(
           ADD_CARD: {
             target: 'viewingCards.adding',
             cond: 'isValidName'
-          }
+          },
+          DELETE_CARD: 'viewingCards.deleting'
         },
         states: {
           idle: {},
           adding: {
             invoke: {
               src: 'addCard',
+              onDone: 'refreshBoard',
+              onError: 'refreshBoard'
+            }
+          },
+          deleting: {
+            invoke: {
+              src: 'deleteCard',
               onDone: 'refreshBoard',
               onError: 'refreshBoard'
             }
@@ -93,7 +101,15 @@ export const boardMachine = Machine<MachineContext, any, MachineEvent>(
             status: status.trim(),
             description: description.trim()
           });
-        })
+        }),
+
+      deleteCard: (context, event) => {
+        return instance.then((db: any) => {
+          const { id } = event as DeleteCard;
+
+          return db.deleteCardById(id);
+        });
+      }
     },
 
     actions: {
@@ -125,4 +141,9 @@ type AddCard = {
   name: string;
   description: string;
   status: Status;
+};
+
+type DeleteCard = {
+  type: 'DELETE_CARD';
+  id: CardId;
 };

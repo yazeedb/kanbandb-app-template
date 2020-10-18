@@ -13,6 +13,10 @@ const App = () => {
   const [inputValue, setInputValue] = useState('');
   const resetInputValue = () => setInputValue('');
 
+  const loading = ['adding', 'deleting'].some((v) =>
+    matches(`viewingCards.${v}`)
+  );
+
   return (
     <main>
       <section className="columns">
@@ -34,8 +38,32 @@ const App = () => {
                           <IconButton
                             icon={<Icon icon="edit2" />}
                             className="edit-card"
+                            loading={loading}
                           />
-                          <IconButton icon={<Icon icon="trash2" />} />
+
+                          <IconButton
+                            icon={<Icon icon="trash2" />}
+                            loading={loading}
+                            onClick={() => {
+                              /*
+                                NOTE: This is a hacky-hack...
+
+                                In real apps, I create finite states like
+                                "confirmingDelete", and show a custom confirmation
+                                component, wired with
+                                "CONFIRM" and "REJECT" transitions
+                              */
+
+                              // I repeat, HACK.
+                              const confirmedDelete = window.confirm(
+                                'Are you sure you want to delete this card?'
+                              );
+
+                              if (confirmedDelete) {
+                                send({ type: 'DELETE_CARD', id: card.id });
+                              }
+                            }}
+                          />
                         </div>
                       </div>
                     }

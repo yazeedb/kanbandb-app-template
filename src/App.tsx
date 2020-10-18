@@ -1,17 +1,8 @@
 import React, { useState } from 'react';
 import { useMachine } from '@xstate/react';
-
 import { boardMachine } from './boardMachine';
 import './App.scss';
-import {
-  Dropdown,
-  Form,
-  FormControl,
-  Icon,
-  IconButton,
-  Modal,
-  Panel
-} from 'rsuite';
+import { Dropdown, Form, FormControl, Icon, Modal, Panel } from 'rsuite';
 import { UpdateCard } from './UpdateCard';
 import { ConfirmDelete } from './ConfirmDelete';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
@@ -24,10 +15,6 @@ const App = () => {
 
   const [inputValue, setInputValue] = useState('');
   const resetInputValue = () => setInputValue('');
-
-  const loading = ['adding', 'deleting'].some((v) =>
-    matches(`viewingCards.${v}`)
-  );
 
   return (
     <main>
@@ -105,24 +92,32 @@ const App = () => {
                                   <div className="card-header">
                                     <h5 className="card-name">{card.name}</h5>
 
-                                    <div>
-                                      <IconButton
-                                        icon={<Icon icon="edit2" />}
-                                        className="edit-card"
-                                        loading={loading}
-                                        onClick={() => {
-                                          send({ type: 'UPDATE_CARD', card });
-                                        }}
-                                      />
+                                    <Dropdown
+                                      title=""
+                                      icon={<Icon icon="ellipsis-h" />}
+                                      noCaret
+                                      placement="leftStart"
+                                    >
+                                      <Dropdown.Item
+                                        appearance="primary"
+                                        icon={<Icon icon="pencil" />}
+                                        onClick={() =>
+                                          send({ type: 'UPDATE_CARD', card })
+                                        }
+                                      >
+                                        Edit
+                                      </Dropdown.Item>
 
-                                      <IconButton
-                                        icon={<Icon icon="trash2" />}
-                                        loading={loading}
+                                      <Dropdown.Item
+                                        appearance="primary"
+                                        icon={<Icon icon="trash" />}
                                         onClick={() =>
                                           send({ type: 'DELETE_CARD', card })
                                         }
-                                      />
-                                    </div>
+                                      >
+                                        Delete
+                                      </Dropdown.Item>
+                                    </Dropdown>
                                   </div>
                                 }
                               >
@@ -175,7 +170,9 @@ const App = () => {
             appearance="primary"
             size="lg"
             className="add-card"
-            disabled={matches('viewingCards.adding')}
+            disabled={
+              matches('viewingCards.adding') || inputValue.trim().length === 0
+            }
           >
             {context.columns.map((c, index) => (
               <Dropdown.Item

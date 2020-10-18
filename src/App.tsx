@@ -13,6 +13,7 @@ import {
   Panel
 } from 'rsuite';
 import { UpdateCard } from './UpdateCard';
+import { ConfirmDelete } from './ConfirmDelete';
 
 const App = () => {
   const [{ matches, context }, send] = useMachine(boardMachine, {
@@ -56,25 +57,7 @@ const App = () => {
                           <IconButton
                             icon={<Icon icon="trash2" />}
                             loading={loading}
-                            onClick={() => {
-                              /*
-                                NOTE: This is a hacky-hack...
-
-                                In real apps, I create finite states like
-                                "confirmingDelete", and show a custom confirmation
-                                component, wired with
-                                "CONFIRM" and "REJECT" transitions
-                              */
-
-                              // I repeat, HACK.
-                              const confirmedDelete = window.confirm(
-                                'Are you sure you want to delete this card?'
-                              );
-
-                              if (confirmedDelete) {
-                                send({ type: 'DELETE_CARD', id: card.id });
-                              }
-                            }}
+                            onClick={() => send({ type: 'DELETE_CARD', card })}
                           />
                         </div>
                       </div>
@@ -147,7 +130,7 @@ const App = () => {
       </footer>
 
       <Modal
-        show={matches('viewingCards.updating') && !!context.pendingCard}
+        show={matches('viewingCards.updating')}
         onHide={() => send('EXIT')}
       >
         <UpdateCard
@@ -163,6 +146,17 @@ const App = () => {
               }
             })
           }
+        />
+      </Modal>
+
+      <Modal
+        backdrop="static"
+        show={matches('viewingCards.confirmingDelete')}
+        onHide={() => send('EXIT')}
+      >
+        <ConfirmDelete
+          onSubmit={() => send('CONFIRM_DELETE')}
+          onClose={() => send('EXIT')}
         />
       </Modal>
     </main>

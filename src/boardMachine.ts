@@ -21,7 +21,8 @@ type MachineEvent =
   | DeleteCard
   | UpdateCard
   | Exit
-  | SubmitUpdates;
+  | SubmitUpdates
+  | ConfirmDelete;
 
 const instance = KanbanDB.connect('');
 
@@ -57,7 +58,10 @@ export const boardMachine = Machine<MachineContext, any, MachineEvent>(
             target: 'viewingCards.adding',
             cond: 'isValidName'
           },
-          DELETE_CARD: 'viewingCards.deleting',
+          DELETE_CARD: {
+            target: 'viewingCards.confirmingDelete',
+            actions: 'setPendingCard'
+          },
           UPDATE_CARD: {
             target: 'viewingCards.updating',
             actions: 'setPendingCard'
@@ -70,6 +74,12 @@ export const boardMachine = Machine<MachineContext, any, MachineEvent>(
               src: 'addCard',
               onDone: 'refreshBoard',
               onError: 'refreshBoard'
+            }
+          },
+          confirmingDelete: {
+            on: {
+              EXIT: 'idle',
+              CONFIRM_DELETE: 'deleting'
             }
           },
           deleting: {
@@ -138,13 +148,8 @@ export const boardMachine = Machine<MachineContext, any, MachineEvent>(
           });
         }),
 
-      deleteCard: (context, event) => {
-        return instance.then((db: any) => {
-          const { id } = event as DeleteCard;
-
-          return db.deleteCardById(id);
-        });
-      },
+      deleteCard: ({ pendingCard }, event) =>
+        instance.then((db: any) => db.deleteCardById(pendingCard.id)),
 
       updateCard: (context, event) => {
         return instance.then((db: any) => {
@@ -202,7 +207,7 @@ type AddCard = {
 
 type DeleteCard = {
   type: 'DELETE_CARD';
-  id: CardId;
+  card: Card;
 };
 
 type UpdateCard = {
@@ -217,4 +222,8 @@ type Exit = {
 type SubmitUpdates = {
   type: 'SUBMIT_UPDATES';
   card: Card;
+};
+
+type ConfirmDelete = {
+  type: 'CONFIRM_DELETE';
 };

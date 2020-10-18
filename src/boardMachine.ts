@@ -62,7 +62,7 @@ export const boardMachine = Machine<MachineContext, any, MachineEvent>(
           },
           MOVE_CARD: {
             target: 'viewingCards.submittingUpdates',
-            actions: 'setPendingCard'
+            actions: ['setPendingCard', 'optimisticallyMoveCard']
           }
         },
         onDone: 'fetching',
@@ -170,6 +170,32 @@ export const boardMachine = Machine<MachineContext, any, MachineEvent>(
 
           return e.card;
         }
+      }),
+
+      optimisticallyMoveCard: assign({
+        columns: ({ columns }, event) => {
+          const { card, startColumn, finishColumn } = event as MoveCard;
+
+          const result = columns.map((column) => {
+            if (column.id === startColumn.id) {
+              return {
+                ...column,
+                cards: column.cards.filter((c) => c.id !== card.id)
+              };
+            }
+
+            if (column.id === finishColumn.id) {
+              return {
+                ...column,
+                cards: [...column.cards, card]
+              };
+            }
+
+            return column;
+          });
+
+          return result;
+        }
       })
     },
 
@@ -213,6 +239,8 @@ type UpdateCard = {
 type MoveCard = {
   type: 'MOVE_CARD';
   card: Card;
+  startColumn: Column;
+  finishColumn: Column;
 };
 
 type Exit = {

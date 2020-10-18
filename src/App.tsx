@@ -51,9 +51,11 @@ const App = () => {
 
           send({
             type: 'MOVE_CARD',
+            startColumn,
+            finishColumn,
             card: {
               ...card,
-              status: destination.droppableId as Status
+              status: finishColumn.id
             }
           });
         }}

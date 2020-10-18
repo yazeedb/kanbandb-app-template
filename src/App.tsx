@@ -6,7 +6,6 @@ import { Dropdown, Form, FormControl, Icon, Modal, Panel } from 'rsuite';
 import { UpdateCard } from './UpdateCard';
 import { ConfirmDelete } from './ConfirmDelete';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
-import { Status } from './model';
 
 const App = () => {
   const [{ matches, context }, send] = useMachine(boardMachine, {

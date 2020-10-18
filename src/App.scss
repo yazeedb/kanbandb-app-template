@@ -1,6 +1,13 @@
 $bg: #1c1c1c;
-$color-primary: #3cb8b0;
 $border-color: #ababab;
+
+html,
+body,
+#root,
+main,
+.columns {
+  height: 100%;
+}
 
 body {
   background-color: $bg;
@@ -10,6 +17,7 @@ body {
 main {
   max-width: 1080px;
   margin: 0 auto;
+  position: relative;
 }
 
 .columns {
@@ -23,7 +31,22 @@ main {
   margin: 0 30px;
 
   .column-header {
-    color: $color-primary;
     border-bottom: 1.5px solid $border-color;
+  }
+}
+
+footer {
+  position: absolute;
+  bottom: 20px;
+  width: 100%;
+
+  form {
+    width: 80%;
+    margin: 0 auto;
+    display: flex;
+  }
+
+  .add-card {
+    margin-left: 20px;
   }
 }

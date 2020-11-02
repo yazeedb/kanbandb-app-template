@@ -15,7 +15,8 @@ const App = () => {
   const [inputValue, setInputValue] = useState('');
   const resetInputValue = () => setInputValue('');
 
-  return (
+  const startTime = performance.now();
+  const markup = (
     <main>
       <DragDropContext
         onDragEnd={({ destination, source, draggableId }) => {
@@ -234,6 +235,12 @@ const App = () => {
       </Modal>
     </main>
   );
+
+  const endTime = performance.now();
+  const totalMs = endTime - startTime;
+  console.log(`App::render totaled ${totalMs}ms (${totalMs / 1000}s)`);
+
+  return markup;
 };
 
 export default App;

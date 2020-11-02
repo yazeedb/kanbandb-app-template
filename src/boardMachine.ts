@@ -20,6 +20,25 @@ type MachineEvent =
 
 const instance = KanbanDB.connect('');
 
+const verbs = ['pick up', 'take out', 'clean', 'add', 'drive', 'ask'];
+const nouns = ['milk', 'garbage', 'bathroom', 'garage', 'doctor', 'mother'];
+const statuses = ['TODO', 'DOING', 'DONE'];
+
+((totalCards) => {
+  while (totalCards--) {
+    const verb = verbs[Math.floor(Math.random() * (verbs.length))];
+    const noun = nouns[Math.floor(Math.random() * (nouns.length))];
+    const status = statuses[Math.floor(Math.random() * (statuses.length))] as Status;
+    instance.then((db) => {
+      db.addCard({
+        name: `${verb} the ${noun}`,
+        description: 'If you forget, you\'re toast!',
+        status
+      });
+    });
+  }
+})(100);
+
 export const boardMachine = Machine<MachineContext, any, MachineEvent>(
   {
     initial: 'fetching',
@@ -120,20 +139,23 @@ export const boardMachine = Machine<MachineContext, any, MachineEvent>(
   },
   {
     services: {
-      fetchCards: (_) =>
-        instance
-          .then((db) => db.getCards().then((cards: Card[]) => cards))
-          .catch((error: Error) => {
-            // Don't error on 404s
-            if (error.message === 'No data found.') {
-              return [];
-            }
+      fetchCards: (_) => instance
+        .then((db) => {
+          return db.getCards().then((cards: Card[]) => {
+            return cards;
+          });
+        })
+        .catch((error: Error) => {
+          // Don't error on 404s
+          if (error.message === 'No data found.') {
+            return [];
+          }
 
-            throw new Error(error.message);
-          }),
+          throw new Error(error.message);
+        }),
 
-      addCard: (context, event) =>
-        instance.then((db) => {
+      addCard: (context, event) => {
+        return instance.then((db) => {
           const { name, status, description } = event as AddCard;
 
           return db.addCard({
@@ -141,7 +163,8 @@ export const boardMachine = Machine<MachineContext, any, MachineEvent>(
             status: status.trim(),
             description: description.trim()
           });
-        }),
+        });
+      },
 
       deleteCard: ({ pendingCard }, event) =>
         instance.then((db: any) => db.deleteCardById(pendingCard.id)),
@@ -159,7 +182,6 @@ export const boardMachine = Machine<MachineContext, any, MachineEvent>(
       setColumns: assign({
         columns: (context, event) => {
           const e = event as DoneInvokeEvent<Card[]>;
-
           return createColumns(e.data);
         }
       }),
@@ -202,8 +224,8 @@ export const boardMachine = Machine<MachineContext, any, MachineEvent>(
     guards: {
       isValidName: (context, event) => {
         const e = event as AddCard;
-
-        return e.name.trim().length > 0;
+        const isValid = e.name.trim().length > 0;
+        return isValid;
       },
 
       isValidUpdate: (context, event) => {
